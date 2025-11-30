@@ -44,9 +44,8 @@ http://cropcare-ai.us-east-1.elasticbeanstalk.com/
 ## 🏗️ Cloud Architecture
 
 
+<img width="2816" height="1536" alt="Gemini_Generated_Image_v1fr4nv1fr4nv1fr" src="https://github.com/user-attachments/assets/052a1284-a59d-4296-bbcb-f62bae83cee0" />
 
-text
-*Image: Add your PNG/SVG architecture diagram here!*
 
 _Event Flow:_ upload → S3 triggers Lambda → Lambda predicts → DynamoDB → UI fetches result.
 
