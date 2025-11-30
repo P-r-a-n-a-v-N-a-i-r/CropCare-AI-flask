@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" class="min-h-screen font-inter">
+<head>
+  <meta charset="UTF-8" />
+  <title>PlantCare AI - Landing</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Toastr CSS & JS -->
+  <link href="https://cdn.jsdelivr.net/npm/toastr/build/toastr.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/toastr/build/toastr.min.js"></script>
+  <style>
+    .toast {
+      min-width: 250px;
+      max-width: 350px;
+      background-color: #333;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      opacity: 0.95;
+      font-weight: 500;
+      transition: opacity 0.5s ease;
+    }
+    .toast-success {
+      background-color: #22c55e;
+    }
+    .toast-error {
+      background-color: #ef4444;
+    }
+    </style>
+</head>
+<body class="relative bg-background text-white">
+
+  <!-- Navigation -->
+  <nav class="absolute top-0 left-0 right-0 z-20 container mx-auto px-6 py-6 flex justify-between items-center">
+    <div class="flex items-center gap-3 text-white">
+      <img src="https://img.icons8.com/ios-filled/48/ffffff/leaf.png" alt="leaf icon" class="w-8 h-8" />
+      <span class="text-3xl font-semibold tracking-wide">PlantCare AI</span>
+    </div>
+
+    <div class="flex gap-3">
+      <div id="loggedInButtons" style="display:none;">
+        <button
+          class="bg-transparent border border-white/30 text-white hover:bg-white/10 gap-2 backdrop-blur-md px-5 py-3 rounded-xl flex items-center text-lg transition font-medium"
+          onclick="goToHistoryPage()">
+          <img class="w-8 h-8" src="https://img.icons8.com/ios/50/ffffff/time-machine--v1.png" alt="history icon"/>
+          History
+        </button>
+        <button
+          class="bg-transparent border border-white/30 text-white hover:bg-white/10 gap-2 backdrop-blur-md px-5 py-3 rounded-xl flex items-center text-lg transition font-medium"
+          onclick="handleLogout()">
+          <img class="w-5 h-5" src="https://img.icons8.com/ios/50/ffffff/exit--v1.png" alt="logout icon"/>
+          Logout
+        </button>
+      </div>
+
+      <div id="guestButtons">
+        <button
+          class="bg-transparent border border-white/30 text-white hover:bg-white/10 backdrop-blur-md px-5 py-3 rounded-xl text-lg transition font-medium"
+          onclick="navigate('/auth')">
+          Login
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 z-0"
+      style="background-image: linear-gradient(rgba(20,83,45,0.75),rgba(34,139,34,0.75)), url('{{ url_for('static', filename='assets/hero-plants.jpg') }}');
+             background-size: cover;
+             background-position: center;">
+    </div>
+
+    <div class="container mx-auto px-6 z-10 text-center text-white max-w-5xl">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-5 py-2 rounded-full mb-7">
+          <img src="https://img.icons8.com/ios-filled/48/ffffff/sparkles.png" alt="sparkles icon" class="w-5 h-5" />
+          <span class="text-base font-medium tracking-wide">AI-Powered Detection</span>
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tight">
+          Protect Your Plants with
+          <span class="block bg-gradient-to-r from-green-300 to-white bg-clip-text text-transparent">
+            Smart AI Detection
+          </span>
+        </h1>
+
+        <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-white/90 leading-relaxed">
+          Upload a photo and instantly identify plant diseases. Get expert prevention steps and treatment recommendations.
+        </p>
+
+        <div class="flex gap-6 justify-center flex-wrap">
+          <button
+            class="px-10 py-5 rounded-2xl bg-white text-green-700 font-semibold text-xl flex items-center shadow-md hover:shadow-xl transition transform hover:-translate-y-1"
+            onclick="navigateAuthProtected('/detect')">
+            Start Detection
+            <span class="ml-3 text-green-700 text-3xl">→</span>
+          </button>
+
+          <button
+            onclick="scrollToFeatures()"
+            class="px-10 py-5 rounded-2xl bg-transparent border border-white text-white text-lg font-medium hover:bg-white/10 backdrop-blur-md transition transform hover:-translate-y-1">
+            Learn More
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-24 bg-gradient-to-b from-background to-muted/30 text-black">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-20">
+        <h2 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">How It Works</h2>
+        <p class="text-xl text-muted-foreground max-w-xl mx-auto">Three simple steps to healthier plants</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+        <div class="p-10 text-center hover:shadow-xl transition-all duration-300 border-2 hover:border-green-600 rounded-2xl bg-white">
+          <div class="w-20 h-20 bg-gradient-to-br from-green-600 to-green-400 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-float">
+            <img src="https://img.icons8.com/ios-filled/48/ffffff/leaf.png" alt="leaf icon" class="w-10 h-10" />
+          </div>
+          <h3 class="text-2xl font-semibold mb-4">Upload Photo</h3>
+          <p class="text-muted-foreground text-lg">Snap a clear picture of your plant's leaves or affected area.</p>
+        </div>
+
+        <div class="p-10 text-center hover:shadow-xl transition-all duration-300 border-2 hover:border-green-600 rounded-2xl bg-white">
+          <div class="w-20 h-20 bg-gradient-to-br from-green-600 to-green-400 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-float" style="animation-delay: 1s;">
+            <img src="https://img.icons8.com/ios-filled/48/ffffff/sparkles.png" alt="sparkles icon" class="w-10 h-10" />
+          </div>
+          <h3 class="text-2xl font-semibold mb-4">AI Analysis</h3>
+          <p class="text-muted-foreground text-lg">Our advanced AI instantly identifies diseases with high accuracy.</p>
+        </div>
+
+        <div class="p-10 text-center hover:shadow-xl transition-all duration-300 border-2 hover:border-green-600 rounded-2xl bg-white">
+          <div class="w-20 h-20 bg-gradient-to-br from-green-600 to-green-400 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-float" style="animation-delay: 2s;">
+            <img src="https://img.icons8.com/ios-filled/48/ffffff/shield.png" alt="shield icon" class="w-10 h-10" />
+          </div>
+          <h3 class="text-2xl font-semibold mb-4">Get Solutions</h3>
+          <p class="text-muted-foreground text-lg">Receive detailed prevention steps and treatment recommendations.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supported Plants Section -->
+  <section class="py-20 bg-background">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl md:text-5xl font-bold mb-4 text-black">
+          Supported Plants
+        </h2>
+        <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+          We can diagnose diseases for these common plants
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
+        {% set plants = [
+          {'name': 'Apple', 'image': 'assets/plants/apple.jpg'},
+          {'name': 'Peach', 'image': 'assets/plants/peach.jpg'},
+          {'name': 'Blueberry', 'image': 'assets/plants/blueberry.jpg'},
+          {'name': 'Cherry', 'image': 'assets/plants/cherry.jpg'},
+          {'name': 'Corn', 'image': 'assets/plants/corn.jpg'},
+          {'name': 'Grape', 'image': 'assets/plants/grape.jpg'},
+          {'name': 'Orange', 'image': 'assets/plants/orange.jpg'},
+          {'name': 'Pepper Bell', 'image': 'assets/plants/pepper.jpg'},
+          {'name': 'Potato', 'image': 'assets/plants/potato.jpg'},
+          {'name': 'Raspberry', 'image': 'assets/plants/raspberry.jpg'},
+          {'name': 'Soybean', 'image': 'assets/plants/soybean.jpg'},
+          {'name': 'Squash', 'image': 'assets/plants/squash.jpg'},
+          {'name': 'Strawberry', 'image': 'assets/plants/strawberry.jpg'},
+          {'name': 'Tomato', 'image': 'assets/plants/tomato.jpg'}
+        ] %}
+        {% for plant in plants %}
+        <div class="overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 hover:border-green-600 rounded-2xl bg-white group">
+          <div class="aspect-square overflow-hidden">
+            <img
+              src="{{ url_for('static', filename=plant.image) }}"
+              alt="{{ plant.name }}"
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+            />
+          </div>
+          <div class="p-3 bg-gradient-to-t from-background to-muted/30">
+            <p class="font-semibold text-center text-foreground text-black">
+              {{ plant.name }}
+            </p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-24 bg-gradient-to-r from-green-600 to-green-400 text-white">
+    <div class="container mx-auto px-6 flex flex-col items-center justify-center text-center">
+      <h2 class="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">Ready to Save Your Plants?</h2>
+      <p class="text-xl mb-10 max-w-2xl opacity-95 leading-relaxed">
+        Join thousands of gardeners using AI to keep their plants healthy and thriving.
+      </p>
+
+      <button
+        class="px-10 py-5 rounded-2xl bg-white text-green-700 font-semibold text-xl flex items-center shadow-md hover:shadow-xl transition transform hover:-translate-y-1"
+        onclick="navigateAuthProtected('/detect')">
+        Start Free Detection
+        <span class="ml-3 text-green-700 text-2xl">→</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-14 bg-muted">
+    <div class="container mx-auto px-6 text-center">
+      <p class="text-lg text-black opacity-90">
+        © 2025 Plant Disease Detection. Powered by AI to help your garden flourish.
+      </p>
+    </div>
+  </footer>
+  <div id="toast-container" class="fixed top-5 right-5 space-y-2 z-50"></div>
+
+  <script>
+    let user = !!localStorage.getItem('idToken');
+    function updateButtons() {
+      if (user) {
+        document.getElementById('loggedInButtons').style.display = 'flex';
+        document.getElementById('guestButtons').style.display = 'none';
+      } else {
+        document.getElementById('loggedInButtons').style.display = 'none';
+        document.getElementById('guestButtons').style.display = 'flex';
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('idToken');
+      localStorage.removeItem('accessToken');
+      user = false;
+      updateButtons();
+      toastr.success('You have been logged out.', 'Logout Successful');
+      window.location.href = '/auth';
+    }
+
+    function navigateAuthProtected(path) {
+      if (!localStorage.getItem('idToken')) {
+        showToast("Please sign in to access this page.", "Info");
+        // toastr.error('Please sign in to access this page.', 'Authentication Required');
+        setTimeout(() => window.location.href = '/auth', 1200);
+      } else {
+        window.location.href = path;
+      }
+    }
+
+    function goToHistoryPage() {
+      const token = localStorage.getItem('idToken');
+      if (!token) {
+        toastr.info('Please sign in to access this page.', 'Authentication Required');
+        window.location.href = '/auth';
+        return;
+      }
+      let base64Url = token.split('.')[1];
+      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      let jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      let payload = JSON.parse(jsonPayload);
+      const username = payload.username || payload.email || 'unknown';
+      window.location.href = `/history?username=${encodeURIComponent(username)}`;
+    }
+
+    function scrollToFeatures() {
+      const section = document.getElementById('features');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    updateButtons();
+    
+    function showToast(message, type = "success") {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => container.removeChild(toast), 500);
+      }, 3000);
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+Flask==1.1.2
+gunicorn==20.1.0
+
+boto3==1.41.2
+botocore==1.41.4
+requests==2.25.1
+python-jose==3.3.0
+python-dotenv==1.0.1
+
+numpy==1.20.2
+pandas==1.2.4
+Pillow==8.2.0
+plant-disease-lib==0.1.4
+
+# PyTorch CPU only
+-f https://download.pytorch.org/whl/torch_stable.html
+torch==1.8.1+cpu
+torchvision==0.9.1+cpu

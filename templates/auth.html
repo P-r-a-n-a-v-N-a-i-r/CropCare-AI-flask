@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" class="min-h-screen font-inter bg-white flex items-center justify-center">
+<head>
+  <meta charset="UTF-8" />
+  <title>PlantCare AI - Auth</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jQuery (Required by Toastr) -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+  <!-- Toastr CSS & JS -->
+  <link href="https://cdn.jsdelivr.net/npm/toastr/build/toastr.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/toastr/build/toastr.min.js"></script>
+
+  <style>
+    /* Customize Toastr or page styles if needed */
+  </style>
+</head>
+<body>
+
+  <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-10 border">
+
+    <!-- Sign In Form -->
+    <form id="signInForm">
+      <h2 class="text-2xl font-bold mb-2 text-green-900">Welcome Back</h2>
+      <p class="mb-7 text-md text-gray-500">Sign in to access your plant disease detection history</p>
+
+      <div class="mb-4">
+        <label for="signInUsername" class="block font-semibold mb-1">Username</label>
+        <input type="text" id="signInUsername" name="username"
+               class="w-full p-3 border rounded focus:outline-none focus:ring"
+               placeholder="Enter your username" required />
+      </div>
+
+      <div class="mb-6">
+        <label for="signInPassword" class="block font-semibold mb-1">Password</label>
+        <input type="password" id="signInPassword" name="password"
+               class="w-full p-3 border rounded focus:outline-none focus:ring"
+               placeholder="Enter your password" required />
+      </div>
+
+      <button type="submit"
+              class="w-full p-3 bg-green-600 hover:bg-green-700 transition text-white text-lg rounded font-semibold mb-2">
+        Sign In
+      </button>
+
+      <p class="text-center text-green-700 mt-3 cursor-pointer" id="switchToSignUp">
+         Don't have an account? <span class="underline">Sign up</span>
+      </p>
+
+      <div id="signInError" class="mt-4 text-red-600 text-center hidden"></div>
+    </form>
+
+    <!-- Sign Up Form -->
+    <form id="signUpForm" class="hidden">
+      <h2 class="text-2xl font-bold mb-2 text-green-900">Create Account</h2>
+      <p class="mb-7 text-md text-gray-500">Sign up to start detecting plant diseases</p>
+
+      <div class="mb-4">
+        <label for="signUpUsername" class="block font-semibold mb-1">Username</label>
+        <input type="text" id="signUpUsername" name="username"
+               class="w-full p-3 border rounded focus:outline-none focus:ring"
+               placeholder="Enter your username" required />
+        <small class="text-xs text-gray-500">Choose a unique username. If you see a duplicate error, please change it.</small>
+      </div>
+
+      <div class="mb-4">
+        <label for="signUpEmail" class="block font-semibold mb-1">Email</label>
+        <input type="email" id="signUpEmail" name="email"
+               class="w-full p-3 border rounded focus:outline-none focus:ring"
+               placeholder="Enter your email" required />
+      </div>
+
+      <div class="mb-4">
+        <label for="signUpFirstName" class="block font-semibold mb-1">First Name</label>
+        <input type="text" id="signUpFirstName" name="given_name"
+               class="w-full p-3 border rounded focus:outline-none focus:ring"
+               placeholder="Enter your first name" required />
+      </div>
+
+      <div class="mb-6">
+        <label for="signUpPassword" class="block font-semibold mb-1">Password</label>
+        <input type="password" id="signUpPassword" name="password"
+               class="w-full p-3 border rounded focus:outline-none focus:ring"
+               placeholder="Enter your password" required />
+      </div>
+
+      <button type="submit"
+              class="w-full p-3 bg-green-600 hover:bg-green-700 transition text-white text-lg rounded font-semibold mb-2">
+        Sign Up
+      </button>
+
+      <p class="text-center text-green-700 mt-3 cursor-pointer" id="switchToSignIn">
+        Already have an account? <span class="underline">Sign in</span>
+      </p>
+
+      <div id="signUpError" class="mt-4 text-red-600 text-center hidden"></div>
+    </form>
+
+    <!-- Confirmation Code Form -->
+    <form id="confirmForm" class="hidden">
+      <h2 class="text-2xl font-bold mb-2 text-green-900">Verify Your Email</h2>
+      <p class="mb-4 text-md text-gray-500">We’ve sent a verification code to your email.<br>Enter the code below to activate your account.</p>
+
+      <div class="mb-4">
+        <label for="confirmationCode" class="block font-semibold mb-1">Confirmation Code</label>
+        <input type="text" id="confirmationCode" name="confirmation_code"
+               class="w-full p-3 border rounded focus:outline-none focus:ring"
+               placeholder="Enter confirmation code" required />
+      </div>
+
+      <button type="submit"
+              class="w-full p-3 bg-green-600 hover:bg-green-700 transition text-white text-lg rounded font-semibold mb-2">
+        Confirm Email
+      </button>
+
+      <div id="confirmError" class="mt-4 text-red-600 text-center hidden"></div>
+    </form>
+
+  </div>
+
+  <script>
+    const signInForm = document.getElementById('signInForm');
+    const signUpForm = document.getElementById('signUpForm');
+    const confirmForm = document.getElementById('confirmForm');
+
+    document.getElementById('switchToSignUp').addEventListener('click', () => {
+      signInForm.classList.add('hidden');
+      signUpForm.classList.remove('hidden');
+      confirmForm.classList.add('hidden');
+      clearErrors();
+    });
+
+    document.getElementById('switchToSignIn').addEventListener('click', () => {
+      signUpForm.classList.add('hidden');
+      signInForm.classList.remove('hidden');
+      confirmForm.classList.add('hidden');
+      clearErrors();
+    });
+
+    function clearErrors() {
+      ['signInError', 'signUpError', 'confirmError'].forEach(id => {
+        const el = document.getElementById(id);
+        el.textContent = '';
+        el.classList.add('hidden');
+      });
+    }
+
+    async function apiPost(url, data) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+      return res.json();
+    }
+
+    signUpForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      clearErrors();
+
+      const data = {
+        username: signUpForm.username.value.trim(),
+        email: signUpForm.email.value.trim(),
+        password: signUpForm.password.value,
+        given_name: signUpForm.given_name.value.trim()
+      };
+
+      const result = await apiPost('/api/signup', data);
+      if (result.success) {
+        confirmForm.classList.remove('hidden');
+        signUpForm.classList.add('hidden');
+      } else {
+        const err = document.getElementById('signUpError');
+        err.textContent = result.message || "Signup failed.";
+        err.classList.remove('hidden');
+      }
+    });
+
+    confirmForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      clearErrors();
+
+      const data = {
+        username: signUpForm.username.value.trim(),
+        confirmation_code: confirmForm.confirmation_code.value.trim()
+      };
+
+      const result = await apiPost('/api/confirm-signup', data);
+      if (result.success) {
+        toastr.success('Email verified! You can now sign in.', 'Success');
+        confirmForm.classList.add('hidden');
+        signInForm.classList.remove('hidden');
+      } else {
+        const err = document.getElementById('confirmError');
+        err.textContent = result.message || "Confirmation failed.";
+        err.classList.remove('hidden');
+      }
+    });
+
+    signInForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      clearErrors();
+
+      const data = {
+        username: signInForm.username.value.trim(),
+        password: signInForm.password.value
+      };
+
+      const result = await apiPost('/api/signin', data);
+      if (result.success && result.tokens) {
+        localStorage.setItem('idToken', result.tokens.IdToken || result.tokens.idToken);
+        localStorage.setItem('accessToken', result.tokens.AccessToken || result.tokens.accessToken);
+        toastr.success('Login successful!', 'Success');
+        window.location.href = '/detect';
+      } else {
+        const err = document.getElementById('signInError');
+        err.textContent = result.message || "Login failed.";
+        err.classList.remove('hidden');
+      }
+    });
+  </script>
+
+</body>
+</html>

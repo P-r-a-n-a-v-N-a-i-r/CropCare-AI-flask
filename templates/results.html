@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" class="min-h-screen bg-gradient-to-b from-gray-100 to-white font-sans">
+<head>
+  <meta charset="UTF-8" />
+  <title>Analysis Results - CropCare AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div class="container mx-auto px-4 py-8 min-h-screen">
+    <button onclick="window.location.href='/detect'" class="mb-8 flex items-center text-gray-600 hover:text-gray-800">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+      Analyze Another Plant
+    </button>
+
+    <h1 class="text-4xl font-bold mb-8 text-center">Analysis Results</h1>
+
+    {% if disease_data.background_no_leaf %}
+      <div class="flex flex-col items-center justify-center bg-white shadow rounded-lg p-8 max-w-xl mx-auto">
+        <img src="{{ image_url }}" alt="Analyzed plant"
+             class="w-48 max-w-xs mx-auto rounded-lg shadow-md mb-6" />
+        <div class="bg-yellow-100 border-l-4 border-yellow-600 p-4 mb-4 font-semibold text-yellow-800 rounded text-center text-lg">
+          Please re-upload an image with a leaf for analysis.
+        </div>
+        <button onclick="window.location.href='/detect'"
+          class="mt-6 py-3 px-8 rounded border border-green-700 text-green-700 hover:bg-green-700 hover:text-white transition font-medium">
+          Analyze Another Plant
+        </button>
+      </div>
+    {% else %}
+      <div class="grid lg:grid-cols-2 gap-8 mb-8 max-w-6xl mx-auto">
+        <div class="bg-white shadow rounded-lg p-6 flex justify-center">
+          <img src="{{ image_url }}" alt="Analyzed plant"
+               class="w-48 max-w-xs mx-auto rounded-lg shadow-md mb-4" />
+        </div>
+        <div class="bg-white shadow rounded-lg p-6">
+          <div class="mb-4">
+            <h2 class="text-3xl font-bold text-green-700 mb-2">
+              {{ disease_data.name or 'Unknown Disease' }}
+            </h2>
+          </div>
+          <p class="text-gray-700 mb-6">
+            {{ disease_data.description or 'No description available.' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="max-w-6xl mx-auto">
+        <section class="bg-white shadow rounded-lg p-8 mb-8">
+          <h2 class="text-2xl font-bold mb-6 flex items-center">
+            <span class="text-3xl mr-3">🛡️</span>
+            Prevention & Treatment Steps
+          </h2>
+          <ol class="space-y-4 list-decimal list-inside">
+            {% for step in disease_data.preventionSteps %}
+              <li>{{ step or 'No prevention step listed.' }}</li>
+            {% else %}
+              <li>No prevention steps available.</li>
+            {% endfor %}
+          </ol>
+        </section>
+
+        <section class="bg-white shadow rounded-lg p-8">
+          <h2 class="text-2xl font-bold mb-6 flex items-center">
+            <span class="text-3xl mr-3">💊</span>
+            Recommended Supplements & Products
+          </h2>
+          <div class="grid md:grid-cols-3 gap-6">
+            {% for supplement in disease_data.supplements %}
+              <div class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition-shadow flex flex-col items-center">
+                <h3 class="font-bold text-lg mb-2">{{ supplement.name or 'Unknown Supplement' }}</h3>
+                {% if supplement.image %}
+                  <img src="{{ supplement.image }}" alt="{{ supplement.name }}" class="mb-4 h-20 w-auto object-contain">
+                {% endif %}
+                <a href="{{ supplement.link or '#' }}" target="_blank"
+                   class="mt-4 inline-flex items-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
+                       stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h18l-3 14H6L3 3z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 13a4 4 0 11-8 0" />
+                  </svg>
+                  Buy Now
+                </a>
+              </div>
+            {% else %}
+              <div>No supplements available.</div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <div class="mt-8 text-center">
+          <button onclick="window.location.href='/detect'" class="py-3 px-8 rounded border border-green-700 text-green-700 hover:bg-green-700 hover:text-white transition">
+            Analyze Another Plant
+          </button>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" class="min-h-screen font-inter">
+<head>
+  <meta charset="UTF-8" />
+  <title>Plant Disease Detection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/toastr/build/toastr.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/toastr/build/toastr.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container mx-auto px-4 py-6 min-h-screen">
+    <div class="flex justify-between items-center mb-8">
+      <button id="backBtn" class="flex items-center gap-2 text-green-900 font-medium text-lg bg-transparent">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+        Back to Home
+      </button>
+
+      <button id="historyBtn" class="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-xl text-green-900 bg-white hover:bg-gray-100">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        View History
+      </button>
+    </div>
+
+    <div class="text-center my-6">
+      <h1 class="text-5xl font-extrabold text-green-700 mb-4">Plant Disease Detection</h1>
+      <p class="text-xl text-gray-700">Upload an image of your plant to identify diseases and get treatment recommendations</p>
+    </div>
+
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-md p-6 mx-auto">
+      <div id="dropZone"
+        class="rounded-xl border-2 border-dashed border-green-600 flex flex-col items-center justify-center py-6 cursor-pointer"
+        >
+        <label id="dropZoneLabel" class="block text-center w-full cursor-pointer">
+          <input id="fileInput" type="file" accept="image/*" class="hidden" />
+          <svg width="56" height="56" fill="none" stroke="currentColor" stroke-width="2" class="mx-auto mb-6 text-green-700">
+            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="7 10 12 5 17 10"/><line x1="12" y1="5" x2="12" y2="17"/>
+          </svg>
+          <div class="text-2xl font-semibold mb-2 text-green-900">Drop your plant image here</div>
+          <div class="text-md text-gray-600 mb-3">(or click to browse, max 20MB)</div>
+        </label>
+
+        <div id="previewSection" class="hidden text-center w-full">
+          <img id="previewImage" alt="Selected plant" class="mx-auto rounded-lg shadow max-h-96 mb-4" />
+          <div>
+            <button id="changeImageBtn" class="border border-gray-300 px-4 py-2 rounded font-medium mr-2" type="button">Change Image</button>
+            <button id="submitBtn" class="bg-green-600 hover:bg-green-700 px-6 py-2 text-white rounded font-medium" type="button">Submit</button>
+          </div>
+        </div>
+
+        <div id="uploadError" class="mt-4 text-red-600 text-center hidden"></div>
+        <div id="uploadSuccess" class="mt-4 text-green-600 text-center hidden"></div>
+        <div id="resultSpinner" class="mt-4 text-center hidden">
+          <div class="flex items-center justify-center gap-2">
+            <svg class="animate-spin h-8 w-8 text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+            <span class="text-green-900 font-semibold text-lg">Processing... Getting results</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-center gap-8 mt-8">
+      <div class="flex flex-col items-center px-6 py-8 bg-white rounded-xl shadow border border-gray-200">
+        <span class="text-4xl mb-2">🌱</span>
+        <h3 class="font-semibold text-lg mb-2">Upload Image</h3>
+        <p class="text-gray-600 text-md text-center">Take a clear photo of the affected plant</p>
+      </div>
+      <div class="flex flex-col items-center px-6 py-8 bg-white rounded-xl shadow border border-gray-200">
+        <span class="text-4xl mb-2">🔍</span>
+        <h3 class="font-semibold text-lg mb-2">AI Analysis</h3>
+        <p class="text-gray-600 text-md text-center">Our AI identifies the disease instantly</p>
+      </div>
+      <div class="flex flex-col items-center px-6 py-8 bg-white rounded-xl shadow border border-gray-200">
+        <span class="text-4xl mb-2">💊</span>
+        <h3 class="font-semibold text-lg mb-2">Get Treatment</h3>
+        <p class="text-gray-600 text-md text-center">Receive prevention steps and supplements</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+  if(!localStorage.getItem('idToken')){
+    window.location.href = '/auth';
+  }
+
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const previewSection = document.getElementById('previewSection');
+  const previewImage = document.getElementById('previewImage');
+  const changeImageBtn = document.getElementById('changeImageBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const uploadError = document.getElementById('uploadError');
+  const uploadSuccess = document.getElementById('uploadSuccess');
+  const resultSpinner = document.getElementById('resultSpinner');
+  let selectedFile = null;
+
+  fileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    handleFile(file);
+  });
+
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.classList.add('border-green-800', 'bg-green-50');
+  });
+
+  dropZone.addEventListener('dragleave', e => {
+    e.preventDefault();
+    dropZone.classList.remove('border-green-800', 'bg-green-50');
+  });
+
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('border-green-800', 'bg-green-50');
+    const file = e.dataTransfer.files[0];
+    handleFile(file);
+  });
+
+  function isValidImage(file) {
+    if(!file.type.startsWith('image/')) {
+      uploadError.textContent = 'Only image files are allowed.';
+      uploadError.classList.remove('hidden');
+      return false;
+    }
+    if(file.size > 20 * 1024 * 1024) {
+      uploadError.textContent = 'Please upload an image smaller than 20MB.';
+      uploadError.classList.remove('hidden');
+      return false;
+    }
+    uploadError.classList.add('hidden');
+    return true;
+  }
+
+  function handleFile(file){
+    if(!file || !isValidImage(file)) return;
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      previewImage.src = e.target.result;
+      previewSection.classList.remove('hidden');
+      fileInput.parentElement.style.display = 'none';
+      uploadError.classList.add('hidden');
+      uploadSuccess.classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  changeImageBtn.addEventListener('click', () => {
+    selectedFile = null;
+    previewSection.classList.add('hidden');
+    fileInput.value = null;
+    fileInput.parentElement.style.display = 'block';
+    uploadError.classList.add('hidden');
+    uploadSuccess.classList.add('hidden');
+  });
+
+  submitBtn.addEventListener('click', () => {
+    if(!selectedFile) {
+      uploadError.textContent = 'Please select an image first';
+      uploadError.classList.remove('hidden');
+      return;
+    }
+    uploadError.classList.add('hidden');
+    uploadSuccess.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Uploading...';
+
+    const token = localStorage.getItem('idToken');
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    fetch('/api/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit';
+  console.log('Upload response:', data);
+
+  // Redirect if token expired
+if (data.message && data.message.toLowerCase().includes('token expired')) {
+    // toastr.error('Session expired. Please sign in again.', 'Authentication');
+    setTimeout(() => window.location.href = '/auth', 1200);
+    return;
+  }
+
+      if(data.success && data.redirect){
+        // Show spinner, hide error/success
+        resultSpinner.classList.remove('hidden');
+        previewSection.classList.add('hidden');
+
+        // Extract image_id from redirect URL
+        const urlParams = new URLSearchParams(data.redirect.split('?')[1]);
+        const imageId = urlParams.get('image_id');
+
+        let attempts = 0;
+        const maxAttempts = 10; // 10 x 2s = 20s poll max
+
+        function pollResult() {
+          fetch(`/result_api?image_id=${imageId}`)
+            .then(r => r.json())
+            .then(resp => {
+              if(resp.found){
+                // Found result, redirect!
+                window.location.href = `/result?image_id=${imageId}`;
+              } else {
+                attempts++;
+                if(attempts < maxAttempts){
+                  setTimeout(pollResult, 2000);
+                } else {
+                  resultSpinner.classList.add('hidden');
+                  uploadError.textContent = "Prediction is taking longer than expected. Please try again soon.";
+                  uploadError.classList.remove('hidden');
+                }
+              }
+            })
+            .catch(err => {
+              attempts++;
+              if (attempts < maxAttempts){
+                setTimeout(pollResult, 2000);
+              } else {
+                resultSpinner.classList.add('hidden');
+                uploadError.textContent = "Error fetching result. Try again later.";
+                uploadError.classList.remove('hidden');
+              }
+            });
+        }
+        pollResult();
+        return;
+      }
+
+      if (!data.success) {
+        uploadError.textContent = data.message || 'Failed to upload image. Please try again.';
+        uploadError.classList.remove('hidden');
+      }
+    })
+    .catch(error => {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit';
+      uploadError.textContent = 'Failed to upload image. Please try again.';
+      uploadError.classList.remove('hidden');
+      console.error('Upload error:', error);
+    });
+  });
+
+  document.getElementById('backBtn').onclick = () => {
+    window.location.href = '/';
+  };
+  document.getElementById('historyBtn').onclick = () => {
+    goToHistoryPage();
+  };
+
+  // Authentication check and navigation helper
+  function goToHistoryPage() {
+  const token = localStorage.getItem('idToken');
+  console.log(token)
+  if (!token) {
+    toastr.info('Please sign in to access this page.', 'Authentication Required');
+    window.location.href = '/auth';
+    return;
+  }else{
+
+  // Decode JWT to get username or email (simplified base64 parse)
+  let base64Url = token.split('.')[1];
+  let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+  let payload = JSON.parse(jsonPayload);
+
+  const username = payload.username || payload.email || 'unknown';
+
+  // Redirect to /history with username as query param
+  window.location.href = `/history?username=${encodeURIComponent(username)}`;}
+}
+
+</script>
+</body>
+</html>
